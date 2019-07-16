@@ -1,0 +1,20 @@
+gcc -pg -O -Wall -fno-builtin -fopenmp -I./azlib/trunk/src//base -I./azlib/trunk/src//fem -I./azlib/trunk/src//gui -I./azlib/trunk/src//image -I./azlib/trunk/src//mathematics \
+-I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/include -I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/libseq -I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/PORD/include -c main.c
+gcc -pg -O -Wall -fno-builtin -fopenmp -I./azlib/trunk/src//base -I./azlib/trunk/src//fem -I./azlib/trunk/src//gui -I./azlib/trunk/src//image -I./azlib/trunk/src//mathematics \
+-I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/include -I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/libseq -I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/PORD/include -c nl_solver_topology.c
+gcc -pg -O -Wall -fno-builtin -fopenmp -I./azlib/trunk/src//base -I./azlib/trunk/src//fem -I./azlib/trunk/src//gui -I./azlib/trunk/src//image -I./azlib/trunk/src//mathematics \
+-I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/include -I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/libseq -I/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/PORD/include -c ccs_format.c
+cd ./azlib/trunk/src//base ; make "CC=gcc -pg" "CFLAGS=-O -Wall -fno-builtin -fopenmp" all
+make[1]: Entering directory '/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/azlib/trunk/src/base'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/azlib/trunk/src/base'
+cd ./azlib/trunk/src//fem ; make "CC=gcc -pg" "CFLAGS=-O -Wall -fno-builtin -fopenmp" all
+make[1]: Entering directory '/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/azlib/trunk/src/fem'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/azlib/trunk/src/fem'
+cd ./azlib/trunk/src//mathematics ; make "CC=gcc -pg" "CFLAGS=-O -Wall -fno-builtin -fopenmp" all
+make[1]: Entering directory '/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/azlib/trunk/src/mathematics'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/azlib/trunk/src/mathematics'
+gcc -pg -O -Wall -fno-builtin -fopenmp -o main main.o nl_solver_topology.o ccs_format.o  ./azlib/trunk/src//fem/fem.a ./azlib/trunk/src//base/base.a ./azlib/trunk/src//mathematics/mathematics.a /home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/lib/libdmumps.a /home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/lib/libmumps_common.a /home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/libseq/libmpiseq.a /home/sugita/cpp-codes/hairulUtem/shibata/ErNorMin/lib/mumps/PORD/lib/libpord.a -lm
+Makefile:93: recipe for target 'main' failed

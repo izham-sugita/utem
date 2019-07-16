@@ -1,0 +1,51 @@
+#####################################################################
+# Makefile.win(image)
+#
+# Copyright (C) 2001 AzLib Developers Group
+#
+# Written by
+#  <Kenzen TAKEUCHI> <Ryu SASAOKA>
+#
+# Thanks to following contributors.
+#
+#
+# Refer to log documents for details.
+#####################################################################
+
+# $Id: Makefile.win 411 2005-06-27 07:38:03Z sasaoka $
+
+## VC++ on Win32 ##
+CC      = cl.exe /nologo
+CFLAGS  = /O2 /G6 /W3 /ML /DWIN32
+LINK    = link.exe
+LNFLAGS = -lib /out:
+INC     = /I..\base /I..\fem
+
+## Intel C compiler on Win32 ##
+#CC      = icl.exe /nologo
+#CFLAGS  = /O3 /G7 /W3 /ML /DWIN32
+#LINK    = link.exe
+#LNFLAGS = -lib /out:
+#INC     = /I..\base /I..\fem
+
+
+ALL_OBJ = \
+  avs_field_utl.obj \
+  bmp_utl.obj \
+  dicom_utl.obj \
+  graphic_binio.obj \
+  graphic_utl.obj \
+  tiff_utl.obj \
+  voxel_utl.obj
+
+all : $(ALL_OBJ) image.lib
+
+image.lib : $(ALL_OBJ)
+	$(LINK) $(LNFLAGS)$@ $?
+
+.c.obj :
+	$(CC) $(CFLAGS) $(INC) -c $<
+
+clean :
+	del *.obj *.o *.lib *.a *~ *.bak
+

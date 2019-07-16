@@ -1,0 +1,5 @@
+メモリー管理についての参考文献
+
+IBM developerWorks --メモリー管理の内側--
+* http://www-6.ibm.com/jp/developerworks/linux/041217/j_l-memory.html
+

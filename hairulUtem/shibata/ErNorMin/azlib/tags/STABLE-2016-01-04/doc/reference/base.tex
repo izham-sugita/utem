@@ -1,0 +1,484 @@
+\chapter{base/} \label{chap:base}
+
+本章では，AzLibの土台とも言えるbaseディレクトリについて説明します．
+このディレクトリでは，AzLibで採用されている様々な開発技術を実装しています．
+まずはじめに，実装されているそれらの機能について概要を説明します．
+AzLibを利用するだけであれば，この概要にだけ目を通しておけば十分でしょう．
+それから，それらの技術を実装している関数群の細かい使い方を説明します．
+
+
+\section{実装している機能の概要}
+AzLibが実装している機能は，以下のものがあります．
+\begin{itemize}
+	\item エラー処理機能
+	\item ログ出力機能
+	\item メモリ管理機能
+\end{itemize}
+
+エラー処理機能は，プログラムがこちらの意図しない動作をしそうなときに，そのことを
+知らせて強制終了するように処理する機能です．
+たとえば，なんらかの数値を $0$ で割るような計算をしそうになったら，実行を途中で
+止めなければなりません．
+管理下にないメモリにアクセスしそうになったときも，未然に止めなければなりません．
+
+ログ出力機能は，実行したプログラムが具体的にどのような計算の過程を経て最後の
+結果にたどり着いたのかを自動的に出力する機能です．
+ログファイルに限らず，実行途中の段階でも端末上に実行の過程を表示することで，
+計算がちゃんと行われているかを即座に知ることができます．
+
+メモリ管理機能は，プログラムが利用するメモリ領域を管理する機能です．
+第\ref{chap:abstract}章でも少し説明しましたが，最適化のプログラムは精度を上げる
+ために膨大なメモリを必要とします．
+いわゆる「メモリの動的確保」を的確に，無駄なく行わなければなりません．
+そのために，まずはじめに使用するメモリの合計量を宣言して確保しておき，その中から
+必要なメモリを利用して，最後にすべて解放するようにします．
+
+それぞれの機能の簡単な使い方について，次の節から説明していきます．
+いくつかの部分で，具体例としてAzLib内のソースコードを使います．
+
+
+\section{エラー処理機能の使い方}
+AzLibでは，\textbf{RC型}（アールシーがた）と呼ばれる独自の変数型を用いて，エラー
+処理機能を実装しています．
+ここでは，その簡単な使い方を説明します．
+
+\subsection{RC型} \label{subsec:RC-type}
+AzLibの関数の多くは，RC型で定義されています．
+RCはReturn Codeの略で，その関数が正常に実行されたかどうかを返り値とします．
+返り値の種類を表\ref{tb:rc_pattern}に示します．
+\begin{table}
+\caption{エラーの分類} \label{tb:rc_pattern}
+\centering
+\begin{tabular}{ll}
+\toprule
+エラーの種類 & RC \\
+\midrule
+エラーなし & \texttt{NORMAL\_RC} \\
+途中で処理を終了させる場合など & \texttt{END\_RC} \\
+switch文の失敗など & \texttt{IMPLEMENT\_ERROR\_RC} \\
+ファイルの読み込みの失敗など & \texttt{READ\_ERROR\_RC} \\
+ファイルの書き込みの失敗など & \texttt{WRITE\_ERROR\_RC} \\
+変換の失敗など & \texttt{CONVERT\_ERROR\_RC} \\
+ポインタが\texttt{NULL}値であるなど & \texttt{NULL\_ERROR\_RC} \\
+配列の動的確保の失敗など & \texttt{ALLOC\_ERROR\_RC} \\
+ファイルオープンの失敗など & \texttt{OPEN\_ERROR\_RC} \\
+ファイルクローズの失敗など & \texttt{CLOSE\_ERROR\_RC} \\
+探索の失敗など & \texttt{SEEK\_ERROR\_RC} \\
+データのフラッシュの失敗など & \texttt{FLUSH\_ERROR\_RC} \\
+関数の引数が不適切であるなど & \texttt{ARG\_ERROR\_RC} \\
+数値計算の失敗など & \texttt{CAL\_ERROR\_RC} \\
+データのオーバーフローなど & \texttt{OVERFLOW\_ERROR\_RC} \\
+データのアンダーフローなど & \texttt{UNDERFLOW\_ERROR\_RC} \\
+$0$ が入ってはいけないときなど & \texttt{ZERO\_ERROR\_RC} \\
+負の値が入ってはいけないときなど & \texttt{NEGATIVE\_ERROR\_RC} \\
+ & \texttt{SUBMIT\_ERROR\_RC} \\
+ & \texttt{OVERRUN\_ERROR\_RC} \\
+ & \texttt{IGNORE\_ERROR\_RC} \\
+いずれにもあてはまらない場合など & \texttt{UNKNOWN\_ERROR\_RC} \\
+エラーとも呼びがたい場合など？ & \texttt{SPECIAL\_RC} \\
+\bottomrule
+\end{tabular}
+\end{table}
+数が多いので，眺める程度の理解で大丈夫です．
+また，使い分けに関して厳密なルールはないので，適当に使い分ければ大丈夫です．
+C言語ではvoid型以外の関数の返り値は $1$ つなので，他に値を返したい場合は
+ポインタを使うことになります．
+
+RC型の関数を呼ぶときは，専用のマクロを使います．
+もしその関数が正常に実行されなかったことを表す値が返却されたときには，そのことを
+表示し，その時点でプログラムを強制終了します．
+
+\subsection{\texttt{RC\_TRY\_MAIN}マクロ}
+main関数でRC型の関数を使うときは，\verb|RC_TRY_MAIN|マクロを用います．
+たとえば，第\ref{chap:abstract}章で見た剛性最大化プログラムのソースコード
+trac\_method.cを見てみましょう．
+94行目の\verb|set_log_level()|で，ログの出力レベルを設定しています．
+このとき，\verb|RC_TRY_MAIN|マクロを使って関数を呼んでいます．
+そこから下でも，ログの出力先の設定や使用するメモリの上限値の設定など，数多くの
+処理を行う関数がRC型で定義されており，\verb|RC_TRY_MAIN|マクロを使って実行して
+います．
+
+\subsection{\texttt{RC\_TRY}マクロ}
+main関数以外の関数でRC型の関数を使うときは，\verb|RC_TRY|マクロを用います．
+たとえば，mathematicsディレクトリのlu.cを見てみましょう．
+25行目から，LU分解で連立 $1$ 次方程式を解く\verb|lu_solve()|という関数が定義
+されています．
+33行目で，RC型の\verb|allocate2D()|という関数が使われています．
+このとき，\verb|RC_TRY|マクロを使って関数を呼んでいます．
+
+\subsection{その他の主要なマクロ}
+基本的に使うのはこの $2$ つのマクロですが，その他の主要なマクロをいくつか説明して
+おきます．
+
+ある変数がNULLのときに，そのことを表示して関数を終了させるときは，
+\verb|RC_NULL_CHK|マクロを用います．
+たとえば，先ほどの\verb|lu_solve()|の34行目で使われています．
+\verb|index|の値が\verb|NULL|であるということは，動的確保が失敗しているという
+ことを表します．
+そのため，エラーとして関数を強制終了させなければなりません．
+
+ある変数が $0$ より小さいときに，そのことを表示して関数を終了させるときは，
+\verb|RC_NEG_CHK|マクロを用います．
+エラー時に負値を返すような関数と組み合わせて使うと効果的です．
+
+ある変数が $0$ 以下であるときに，そのことを表示して関数を終了させるときは，
+\verb|RC_NEG_ZERO_CHK|マクロを用います．
+配列の大きさが不適切な値でないかを検証するときなどに使います．
+
+この他にもいくつかマクロが用意されています．
+
+
+\section{ログ出力機能の使い方} \label{sec:log-output-utl}
+ここでは，AzLibで実装されているログ出力機能について説明します．
+
+\subsection{ログレベル}
+AzLibでは，ログとして出力する情報の量をログレベルで調節します．
+ログレベルは $1$ から $5$ までの $5$ 段階があります．
+数字が大きいほど，出力する情報の量が多くなります．
+
+ログレベルの設定は，main関数で\verb|set_log_lebel()|関数を呼んで行います．
+trac\_method.cでは，94行目でログの出力レベルを設定しています．
+
+\subsection{ログの出力先}
+AzLibではログの出力先を，標準出力（stdout）や標準エラー出力（stderr），
+任意のファイルなどに設定することができます．
+ログの出力先は， $0$ 番から $4$ 番までの $5$ つを設定することができます．
+
+ログの出力先の設定は，main関数で\verb|set_log_file()|関数を呼んで行います．
+trac\_method.cでは，$98$ 行目，$99$ 行目でログ $0$ を標準エラー出力，ログ $1$ を
+ファイルに設定しています．
+出力先にファイルを設定する場合は，\verb|fopen()|や\verb|rc_fopen()|でファイル
+ポインタを取得しておく必要があります．
+
+設定したログの出力先のポインタは，\verb|get_log_file()|で取得することができます．
+\verb|fprintf()|と組み合わせて使うことで，出力先を選んでログを出力することが
+できます．
+
+
+\section{メモリ管理機能の使い方}
+ここでは，AzLibで実装されているメモリ管理機能について説明します．
+C言語における「配列の動的確保」を利用していますので，知らなければある程度の予習
+をしてから先に進むとよいでしょう．
+設計思想については後述することにして，まずは使い方を簡単に説明します．
+
+\subsection{メモリ空間の初期化と終了処理}
+プログラムでは，行列やベクトルは配列変数で表現します．
+有限要素解析では，大きいものであれば数百万規模の要素を持つ行列やベクトルを用いる
+ので，配列を動的確保して使います．
+
+動的確保するとは言っても，使えるメモリの大きさにはもちろん限界があります．
+そこで，まずはじめに「だいたいこれぐらいのメモリを使います」というのをプログラム
+の中で宣言しておきます．
+その宣言が，\verb|mm_init()|という関数です．
+\verb|trac_method.c| では，$102$ 行目で使用するメモリの上限値を 
+$256 \ \mathrm{MB}$ に設定しています．
+AzLibでは，配列の動的確保に使う関数がいくつか用意されています．
+たとえば，実行列（\verb|double|型 $2$ 次元配列）の確保には\verb|allocate2D()|とい
+う関数を使います．
+AzLibで用意されている配列の動的確保の関数は，\verb|mm_init()|で確保した領域の中か
+ら確保を行います．
+
+動的確保では，確保した領域は最後に解放しなければなりません．
+\verb|mm_init()| で確保した領域は，\verb|mm_terminate()| で解放します．
+\verb|trac_method.c| では $169$ 行目，解析終了後に解放しています．
+
+\subsection{確保したメモリ空間の利用}
+\verb|mm_init()|で確保したメモリ空間から動的確保を行うときは，\verb|mm_alloc()|と
+いう関数を使います．
+AzLibで用意されている動的確保の関数は，この関数を使っています．
+用意されてない変数型の配列の動的確保を行うときは，この関数を直接使うことになりま
+す．
+
+\verb|mm_alloc()|で確保した領域の解放には，\verb|mm_free()|という関数を使います．
+動的確保した領域の解放に使うAzLibの関数はこの関数を使っています．
+確保のときと同様に，用意されてない変数型の配列の解放を行うときは，この関数を直接
+使うことになります．
+
+
+\section{IDC共用体}
+
+
+\section{関数の説明}
+baseディレクトリの各関数を簡単に説明します．
+詳細はソースコードを見ましょう．
+
+\subsection{base.h}
+baseディレクトリ全体のヘッダファイルです．
+
+\subsection{bin\_io.c/h}
+バイナリファイルのI/Oを行う関数群です．
+
+\subsection{data\_model.c/h}
+各データ型のサイズを出力する関数群です．
+
+\begin{itemize}
+\item \texttt{print\_data\_model(FILE *fp)}
+出力先を\texttt{fp}に指定して，様々なデータ型のサイズをbit，byte単位で
+表示します．
+出力するデータ型は，char，short，int，long，long long，float，double，
+long double，void *，size\_t，time\_t，WRAP64\_INTです．
+\end{itemize}
+
+\subsection{idc.c}
+IDC共用体の関数群です．
+
+\begin{itemize}
+\item \texttt{RC fgetidc(FILE *fp, const char coord[], IDC data[])} \ \\
+入力源\texttt{fp}から $1$ 行読み込み，データを\texttt{data}に格納します．
+読み込むデータ型を\texttt{coord}で指定します．
+\texttt{for}ループ内で用いることで，$1$ 行ずつ処理を行うことができます．
+
+\item \texttt{RC sgetidc(const char buf[], const char coord[], \\
+	IDC data[])} \ \\
+\texttt{fgetidc()}の文字列版です．
+半角スペース区切りのデータの文字列\texttt{buf}を読み込み，\texttt{data}に
+格納します．
+読み込むデータ型を\texttt{coord}で指定します．
+\end{itemize}
+
+\subsection{list.c/h}
+
+\subsection{log\_printf.c}
+ログの出力を行うための関数群です．
+
+\begin{itemize}
+\item \texttt{void rc\_error\_print\_log(const char *file\_name,  \\
+	int line, const char *rc\_func, RC rc)} \ \\
+RC型の関数\texttt{rc\_func}を実行したときの返り値がNORMAL\_RC以外のときに
+呼び出される関数で，messages.hで定義されたエラーメッセージおよびエラーが
+発生した部分のファイル名と行番号をすべてのログ出力先に出力します．
+rc\_push\_func()でエラー出力関数として設定して使うので，直接呼び出すことは
+ありません．
+
+\item \texttt{RC set\_log\_level(int level)} \ \\
+ログ出力レベルを\texttt{level}に設定します．
+
+\item \texttt{int get\_log\_level(void)} \ \\
+現在のログ出力レベルを返します．
+
+\item \texttt{RC set\_log\_file(int i, FILE *fp)} \ \\
+\texttt{i}番目のログ出力先を \texttt{fp} に指定します．
+
+\item \texttt{FILE *get\_log\_file(int i)} \ \\
+\texttt{i}番目のログ出力先を取得します．
+
+\item \texttt{RC tlog\_printf(int level, const char *format, ...)} \ \\
+ログ出力レベル\texttt{level}で，書式 \texttt{format, ...} に従った文字列を
+タイムスタンプ付きで出力します．
+
+\item \texttt{RC log\_printf(int level, const char *format, ...)} \ \\
+ログ出力レベル\texttt{level}で，書式 \texttt{format, ...} に従った文字列を
+出力します．
+
+\item \texttt{RC progress\_printf(int level, const char *format, ...)} \ \\
+ログ出力レベル\texttt{level}で，書式 \texttt{format, ...} に従った文字列を，
+以前出力した分を消去して出力します．
+パーセンテージなどの進捗状況を同じ行に出力したいときに使います．
+標準出力および標準エラー出力にしか出力されません．
+
+\item \texttt{RC progress\_bar\_printf(int level, const char *format, \\ ...)} \ \\
+基本は\texttt{progress\_print()}と同じですが，進捗状況のパーセンテージ
+（\texttt{percent}，$0$ 以上 $1$ 未満）をプログレスバー付きで表示します．
+
+\item \texttt{RC log\_flush(void)} \ \\
+すべてのログ出力先をフラッシュします．
+フラッシュについては，Webで調べたりしてください．
+
+\item \texttt{RC error\_printf(int error\_id, ...)} \ \\
+messages.hのエラーID \texttt{error\_id} の書式に従ったエラーメッセージを
+出力します．
+ただし，最初のエラーのみ出力します．
+
+\item \texttt{RC error\_printf(int error\_id, ...)} \ \\
+messages.hのワーニングID \texttt{error\_id} の書式に従ったワーニングメッセージを
+出力します．
+\end{itemize}
+
+\subsection{macros.h}
+プログラムを書くときに用いる便利なマクロです．
+
+\begin{itemize}
+\item \texttt{KILO\_BYTE} \ \\
+1KBを表します．
+
+\item \texttt{MEGA\_BYTE} \ \\
+1MBを表します．
+
+\item \texttt{GIGA\_BYTE} \ \\
+1GBを表します．
+
+\item \texttt{DEBUG\_PRINT} \ \\
+記述した場所のファイル名と行番号を表示します．
+\end{itemize}
+
+\subsection{mail\_utl.c/h}
+
+\subsection{memory\_manager.c/h}
+メモリ管理に関する関数群です．
+メモリサイズの単位はByteです．
+
+\begin{itemize}
+\item \verb|RC mm_init(size_t size)| \ \\
+大きさを \verb|size| に指定して，メモリ領域を初期化します．
+
+\item \verb|RC mm_resize(size_t size)| \ \\
+すでに確保しているメモリ領域を解放して，大きさ \verb|size| のメモリ領域を
+確保します．
+
+\item \verb|RC mm_terminate(void)| \ \\
+すでに確保しているメモリ領域を解放します．
+
+\item \verb|void *mm_alloc(size_t size)| \ \\
+大きさ \verb|size| のメモリ領域を確保し，そのポインタを返します．
+確保に失敗した場合は \verb|NULL| を返します．
+
+\item \verb|void *mm_alloc64(WRAP64_INT size)| \ \\
+大きさ \verb|size| のメモリ領域を確保し，そのポインタを返します．
+\verb|size_t| が32ビットの環境でオーバーフローの可能性がある場合に用います．
+確保に失敗した場合は \verb|NULL| を返します．
+
+\item \verb|void *mm_alloc_tmp(size_t size)| \ \\
+大きさ \verb|size| のメモリ領域を確保し，そのポインタを返します．
+なるべく後方のメモリ領域を用います．
+確保に失敗した場合は \verb|NULL| を返します．
+
+\item \verb|size_t mm_last_allocatable(void)| \ \\
+後方の空いている領域の大きさを返します．
+
+\item \verb|void *mm_realloc(void *ptr, size_t size)| \ \\
+\verb|mm_alloc()| で確保された領域のポインタ \verb|ptr| を大きさ 
+\verb|size| に拡大または縮小し，そのポインタを返します．
+確保に失敗した場合は \verb|NULL| を返します．
+
+\item \verb|void *mm_realloc64(void *ptr, WRAP64_INT size)| \ \\
+\verb|mm_alloc()| で確保された領域のポインタ \verb|ptr| を大きさ 
+\verb|size| に拡大または縮小し，そのポインタを返します．
+\verb|size_t| が32ビットの環境でオーバーフローの可能性がある場合に用います．
+確保に失敗した場合は \verb|NULL| を返します．
+
+\item \verb|RC mm_free(void *ptr)| \ \\
+ポインタ \verb|ptr| の領域を解放します．
+
+\item \verb|RC mm_compaction_va(void **ptr, ...)| \ \\
+確保した領域を前方に移動させます．
+\verb|ptr, ...| には，各領域のポインタを格納している変数のポインタを渡します．
+
+\item \verb|RC mm_compaction_arr(int ptr_num, void *ptr[])| \ \\
+確保した領域を前方に移動させます．
+\verb|ptr_num| 個のポインタを配列 \verb|ptr[]| で渡します．
+
+\item \verb|RC mm_compaction_arr2(int ptr1_num, void *ptr1[], | \\
+	\verb|   int ptr2_num, void *ptr2[])| \ \\
+確保した領域を前方に移動させます．
+\verb|ptr1_num| 個のポインタを配列 \verb|ptr1[]| で，
+\verb|ptr2_num| 個のポインタを配列 \verb|ptr2[]| で渡します．
+
+\item \verb|RC mm_chk_list(FILE *fp)| \ \\
+メモリ管理状況が正常かどうかを確認します．
+出力先を指定すれば，管理の状況を出力します．
+
+\item \verb|size_t mm_allocatable(FILE *fp)| \ \\
+使用していないメモリ領域の最大値を返します．
+出力先を指定すれば，管理の状況を出力します．
+
+\item \verb|size_t mm_max_usage(void)| \ \\
+メモリ領域の最大使用量を返します．
+
+\item \verb|size_t mm_size(void)| \ \\
+メモリ領域全体の大きさを返します．
+
+\item \verb|size_t mm_list_size(void)| \ \\
+\verb|MM_LIST| 構造体の $1$ つあたりの大きさを返します．
+\end{itemize}
+
+
+\subsection{messages.h}
+\verb|log_printf.c| の関数で用いるエラーメッセージおよびワーニングメッセージを
+定義しています．
+
+\subsection{rc.c/h}
+\begin{itemize}
+\item \verb|RC rc_fopen(const char *path, const char *mode, | \\
+	\verb|   FILE **fp)| \ \\
+C言語の標準入出力関数群の \verb|fopen()| をRC型で定義したものです．
+ファイル名 \verb|path|，開くモード \verb|mode|を指定し，ファイルポインタ 
+\verb|fp| で指定されるファイルを開きます．
+
+\item \verb|RC rc_fclose(FILE **fp)| \ \\
+C言語の標準入出力関数群の \verb|fclose()| をRC型で定義したものです．
+ファイルポインタ \verb|fp| で指定されるファイルを閉じます．
+
+\item \verb|RC rc_touch(const char *path)| \ \\
+ファイル名 \verb|path| のファイルを作成します．
+
+\item \verb|void print_rc(FILE *stream, RC rc)| \ \\
+\verb|stream| を出力先として，\verb|rc| のRC型名を表示します．
+
+\item \verb|rc_error_print_default(const char *file_name, int line, | \\
+	\verb|   const char *rc_func, RC rc)| \ \\
+ファイル名 \verb|file_name|，行番号 \verb|line|，関数名 \verb|rc_func|，
+RC型 \verb|rc| を標準エラー出力に，表示します．
+\verb|rc_push_func()| でエラー出力関数として設定して使うので，直接呼び出す
+ことはありません．
+初期のエラー出力関数として登録されています．
+
+\item \verb|rc_error_print_silent(const char *file_name, int line, | \\
+	\verb|   const char *rc_func, RC rc)| \ \\
+呼び出しても何もしません．
+\verb|rc_push_func()| でエラー出力関数として設定して使うので，直接呼び出す
+ことはありません．
+
+\item \verb|void rc_push_func(void (*func)(const char *, int, | \\
+	\verb|   const char *, RC))| \ \\
+エラー出力関数を変更します．
+\verb|rc_error_*()| のポインタ \verb|func| を渡します．
+
+\item \verb|void rc_pop_func(void)| \ \\
+エラー出力関数を元に戻します．
+
+\item \verb|void rc_error_print(const char *file_name, int line, | \\
+	\verb|const char *rc_func, RC rc)| \ \\
+登録されているエラー出力関数を実行します．
+
+\item \verb|RC rc_fwrite(const void *ptr, size_t size, size_t nmemb, | \\
+	\verb|   FILE *fp)| \ \\
+C言語の標準入出力関数群の \verb|fwrite()| をRC型で定義したものです．
+ファイル \verb|fp| へ，\verb|ptr| から大きさ \verb|size| のデータを
+\verb|nmemb| 個書き込みます．
+
+\item \verb|RC rc_fwrite_fn(const void *ptr, size_t size, | \\
+	\verb|   size_t nmemb, FILE *fp, const char file_name[])| \ \\
+C言語の標準入出力関数群の \verb|fwrite()| をRC型で定義したものです．
+ファイル \verb|fp| へ，\verb|ptr| から大きさ \verb|size| の \verb|nmemb| 個の
+データを書き込みます．
+エラー時に，ファイル名 \verb|file_name| を表示します．
+
+\item \verb|RC rc_fread(void *ptr, size_t size, size_t nmemb, | \\
+	\verb|   FILE *fp)| \ \\
+C言語の標準入出力関数群の \verb|fread()| をRC型で定義したものです．
+ファイル \verb|fp| から，大きさ \verb|size| の \verb|nmemb| 個のデータを
+\verb|ptr| へ書き込みます．
+
+\item \verb|RC rc_fread(void *ptr, size_t size, size_t nmemb, | \\
+	\verb|   FILE *fp, const char file_name[])| \ \\
+C言語の標準入出力関数群の \verb|fread()| をRC型で定義したものです．
+ファイル \verb|fp| から，大きさ \verb|size| の \verb|nmemb| 個のデータを
+\verb|ptr| へ書き込みます．
+エラー時に，ファイル名 \verb|file_name| を表示します．
+
+\end{itemize}
+
+\subsection{scratch\_io.c/h}
+スクラッチファイルの入出力を行う関数群です．
+
+\subsection{string\_utl.c/h}
+文字列の操作を行う関数群です．
+
+\subsection{time\_utl.c/h}
+タイムスタンプの出力および実行時間の取得を行う関数群です．
+
+\subsection{wrapper\_64.c/h}
+64ビット整数型の処理を行う関数群です．
+
+
+

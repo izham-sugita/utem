@@ -1,0 +1,18 @@
+[Subversionドキュメント]
+* http://subversion.bluegate.org/
+
+[プロパティの設定]
+* $Id:$ の展開
+ $ svn propset svn:keywords Id hoge.c
+
+ 例: /* $Id:$ */  展開後
+     /* $Id: fem_struct.h 842 2006-12-04 06:21:20Z sasaoka $ */
+
+* 改行コードを自動的に各自の環境に合わせる設定
+ $ svn propset svn:eol-style native hoge.c
+
+ これをやらないと改行コードが混在になり， ^M が行末に付いたりする．
+ 自動的にこれを設定する方法は無い模様(各自のconfigで設定する方法はある)．
+ 新しい「テキストファイル」が追加される度に設定する必要あり．
+
+

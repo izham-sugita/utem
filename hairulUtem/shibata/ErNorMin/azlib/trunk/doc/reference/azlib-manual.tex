@@ -1,0 +1,299 @@
+\documentclass[a4paper,10pt]{jarticle}
+
+
+\pagestyle{plain}
+
+%%%%%%    TEXT START    %%%%%%
+\begin{document}
+\section{AzLib 概要}
+
+\subsection{ライセンス}
+
+\subsection{各ディレクトリの概要}
+
+\subsection{AzLib の利用法}
+\subsubsection{ヘッダファイルのインクルード}
+\subsubsection{make によるコンパイル方法}
+
+\subsection{AzLib の開発方法}
+\subsubsection{CVS によるソース管理}
+\subsubsection{ML, Web による情報交換}
+\subsubsection{各ファイル内ヘッダの記述規則}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{リターンコード RC と関連マクロ (rc.h)}
+対象ソースコード : \verb|rc.c|
+
+\subsection{リターンコード RC}
+\subsubsection{RC の設計思想}
+
+\subsection{RC\_TRY(), RC\_TRY\_MAIN() マクロ}
+
+\subsection{RC\_NEG\_CHK(), RC\_NEG\_ZERO\_CHK(), RC\_NULL\_CHK() マクロ}
+\subsubsection{RC\_*() 系マクロの実装}   <--- 関数型マクロ等
+
+\subsection{rc\_* 系関数}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{数学関連ユーティリティー(math\_utl.h)}
+対象ソースコード : \verb|math_utl.c| , \verb|integration.c|
+
+\subsection{行列および多次元配列}
+\subsubsection{配列の動的確保と解放(allocate*(), free*() 系関数)}
+\subsubsection{行列計算用関数}
+\paragraph{配列処理の実装}   <-- ポインタ関連
+\paragraph{行列計算プログラムの実装と高速化技法}   <---ループアンローリング等
+
+\subsection{二次元，三次元ベクトル}
+\subsubsection{TRANSLATION3D 系データ構造}
+\subsubsection{二次元，三次元ベクトル処理関数}
+
+\subsection{有限要素内の数値積分(Gauss\_const\_*() 系関数)}
+
+\subsection{ABS\_TOL, REL\_TOL マクロ}
+
+\subsection{その他の数学関連関数，マクロ}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{バイナリーファイル入出力(bin\_io.h)}
+対象ソースコード : \verb|bin_io.c|
+
+\subsection{ビッグエンディアン，リトルエンディアン(ENDIAN)}
+
+\subsection{バイナリーファイル入出力関数}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{メール送信ユーティリティー(mail\_utl.h)}
+対象ソースコード : \verb|mail_utl.c|
+
+\subsection{メール送信関数(send\_mail() 関数)}
+\subsubsection{メール送信関数の実装}   <--- \verb|system()| 関数の使い方
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{文字列処理ユーティリティー(string\_utl.h)}
+対象ソースコード : \verb|string_utl.c| , \verb|idc.c|
+
+\subsection{文字列の管理}
+\subsubsection{文字列管理構造体(STRING\_ARRAY)}
+\subsubsection{文字列の管理関数(*\_string\_array() 系関数)}
+
+\subsection{任意データ型の処理}
+\subsubsection{任意のデータ型を保持する共用体(IDC)}
+\subsubsection{任意データ型の読み込み(fgetidc(), sgetidc() 関数)}
+
+\subsection{ログファイル出力(logprintf() 関数)}
+\subsubsection{ログファイル出力の実装}  <--- 可変引数の処理
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{ポケコン風数式処理(pokecom.h)}
+対象ソースコード : \verb|pokecom.c|
+
+\subsection{変数管理構造体(POKE\_VARIABLE)}
+
+\subsection{変数管理用関数}
+
+\subsection{数式処理(eval\_expr() 関数)}
+\subsubsection{数式処理の実装}   <-- 関数の再帰呼び出し等
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{スカイライン型行列処理(sky\_cholesky.h, sky\_crout.h)}
+対象ソースコード : \verb|sky_cholesky.c| , \verb|sky_crout.c|
+
+\subsection{LU 分解とスカイライン法}
+　　<-- 改訂コレスキー分解，クラウト分解とスカイライン型行列の必要性
+
+\subsection{スカイライン型行列のデータ構造(n, index1, index2, array)}
+\subsubsection{対称行列の場合}
+\subsubsection{非対称行列の場合}
+
+\subsection{スカイライン型行列の確保と解放(*\_alloc(), *\_free() 系関数)}
+
+\subsection{スカイライン型行列への代入，修正}
+
+\subsection{スカイライン型行列の LU 分解と前進・後退代入}
+\subsubsection{LU 分解の実装と高速化技法}  <-- 三段ループアンローリング等
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{非ゼロ型行列処理(nonzero\_cg.h)}
+対象ソースコード : \verb|nonzero_cg.c|
+
+\subsection{CG 法と非ゼロ型行列}
+   <-- CG 法による連立一次方程式の解法と非ゼロ型行列の必要性
+
+\subsection{非ゼロ型行列用データ構造}
+\subsubsection{行圧縮方式(NONZERO\_MATRIX)}
+\subsubsection{3x3 ブロック行圧縮方式(NONZERO\_MATRIX3)}
+
+\subsection{非ゼロ型行列の確保と解法}
+
+\subsection{非ゼロ型行列に関連する各種演算処理}
+
+\subsection{非ゼロ型行列に対する各種 CG 法}
+\subsubsection{対称行列用 ICCG 法(iccg\_nonzero3s() 関数)}
+\subsubsection{非対称用 CG 法(cg\_nonzero1a\_*() 系関数)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{有限要素法用データ構造(fem\_struct.h)}
+対象ソースコード : \verb|fem_struct.c| , \verb|fem_struct_print.c| ,
+                   \verb|fem_struct_binio.c| , \verb|fem_utl.|c ,
+                   \verb|fem_renumber.c| , \verb|element_volume.c| , 
+                   \verb|extract_surface.c| ,
+                   \verb|interpolation.c| , \verb|pressure_force.c|
+
+\subsection{各種データ構造(FEM\_NODE, FEM\_ELEMENT 等)}
+\subsubsection{付加情報(i\_info, d\_info) の利用法}
+\subsubsection{データの初期化と解放(init\_fem\_*(), free\_fem\_*() 系関数)}
+\subsubsection{ファイル出力用関数(print\_fem\_*() 系関数)}
+
+\subsection{各種データの配列管理用構造体(FEM\_NODE\_ARRAY, FEM\_ELEMENT\_ARRAY 等)}
+\subsubsection{配列の確保と解放(allocate\_fem\_*\_array(), realloc\_fem\_*\_array(), clean\_fem\_*\_array(), free\_fem\_*\_array 系関数)}
+\subsubsection{配列内の特定要素の検索(sort\_fem\_*\_array(), search\_fem\_*\_*() 系関数)}
+\subsubsection{配列のファイル出力用関数(print\_fem\_*\_array() 系関数)}
+\subsubsection{配列に対するその他の操作}
+
+\subsection{節点のリナンバリング}
+\subsubsection{AzLib における節点自由度と連立一次方程式の変数との対応}
+  <-- \verb|FEM_NODE| の \verb|renum| と \verb|node_renum_index()|,
+  \verb|node_renum_index_cache()| の解説
+\paragraph{node\_renum\_index\_cache() の実装}  <-- キャッシュアルゴリズム
+\subsubsection{リナンバリング処理(dummy\_renumber(), fem\_renumber0() 関数)}
+\paragraph{リナンバリングアルゴリズムの実装}  <-- グラフ処理等
+
+\subsection{体積計算(element\_volume(), total\_element\_volume() 関数}
+\subsubsection{体積計算：ヤコビアンの積分計算の実装}
+    <-- ヤコビアン計算，ガウスポイント等
+
+\subsection{要素外表面抽出，要素境界面抽出(extract\_surface(), extract\_divider() 関数)}
+\subsubsection{要素外表面抽出，要素境界面抽出の実装}  <-- ハッシュテーブル等
+
+\subsection{有限要素の再帰的細分割(cut\_element() 関数)}
+\subsubsection{有限要素の再帰的細分割の実装}
+　　　<-- 独自のデータ構造，ハッシュテーブルの利用等
+
+\subsection{要素内での内挿関数とその勾配(set\_N\_vector(), set\_dN\_matrix() 関数)}
+\subsubsection{要素の中心，各節点のアイソパラメトリック座標(set\_local\_node\_points(),
+set\_center\_point() 関数)}
+
+\subsection{表面分布力の節点荷重への振り分け(pressure\_force(), traction\_force() 関数)}
+
+\subsection{その他の有限要素法関連関数}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{ANSYS 用データ入出力(ansys\_component.h)}
+対象ソースコード : \verb|ansys_component.c|
+
+\subsection{ANSYS データファイルからの入力(ansys\_input\_*() 系関数}
+
+\subsection{ANSYS データファイルへの出力(ansys\_output\_*() 系関数}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{SYSNOISE 用データ入出力(sysnoise\_component.h)}
+対象ソースコード : \verb|sysnoise_component.c|
+
+\subsection{SYSNOISE データファイルからの入力(sysnoise\_input\_*() 系関数}
+
+\subsection{SYSNOISE データファイルへの出力(sysnoise\_output\_*() 系関数}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{STL 用データ入出力(stl\_utl.h)}
+対象ソースコード : \verb|stl_utl.c|
+
+\subsection{STL ファイルからの入力(input\_stl\_3dface*() 系関数}
+
+\subsection{STL ファイルへの出力(output\_stl\_3dface*() 系関数}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{STL 用データ入出力(dxf\_utl.h)}
+対象ソースコード : \verb|dxf_utl.c|
+
+\subsection{DXF ファイルからの入力(input\_dxf*() 系関数}
+
+\subsection{DXF ファイルへの出力(output\_dxf*() 系関数}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{EPS 用データ出力(eps\_utl.h)}
+対象ソースコード : \verb|eps_utl.c|
+
+\subsection{EPS ファイルへの出力(output\_eps() 関数)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Nastran 用データ入出力(nst\_component.h)}
+対象ソースコード : \verb|nst_blk_llio.c| , \verb|nst_blk_component.c| ,
+  \verb|nst_f06_component.c| , \verb|nst_pch_component.c|
+
+\subsection{Nastran BULK データからの入力(nst\_input\_*() 系関数)}
+\subsubsection{Nastran BULK データ用低レベル入力関数(nst\_blk\_get\_tok() 関数等)}
+
+\subsection{Nastran BULK データへの出力(nst\_output\_*() 系関数)}
+\subsubsection{Nastran BULK データ用低レベル出力関数(nst\_print() 関数等)}
+
+\subsection{Nastran f06 ファイルからの入力(nst\_input\_*() 系関数)}
+\subsubsection{Nastran f06 用低レベル入力関数(read\_f06*() 系関数)}
+
+\subsection{Nastran Panch ファイルからの入力(read\_pch\_* 系関数)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{有限要素弾性解析(fem\_solver.h)}
+対象ソースコード : \verb|fem_solver.c| , \verb|fem_solver_6dof.c| , \verb|nl_solver.c| , \verb|eigen_solver.c|
+
+\subsection{線形弾性解析(fem\_solver.c)}
+
+\subsection{線形弾性解析の１節点６自由度版(fem\_solver\_6dof.c)}
+
+\subsection{大変形解析(nl\_solver.c)}
+
+\subsection{固有振動解析(eigen\_solver.c)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{流れ場解析(flow\_solver.h)}
+対象ソースコード : \verb|flow_solver.c|
+
+\subsection{流れ場解析}
+
+\subsection{流れ場の最適化関連関数}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{力法による最適化解析(optimization\_utl.h)}
+対象ソースコード : \verb|optimization_utl.c|
+
+\subsection{速度場解析(speed\_analysis() 関数}
+
+\subsection{各種評価関数と評価関数の変動予測(*\_functional() 系関数, functional\_variation())}
+
+\subsection{各種評価関数の感度を節点荷重に変換(shape\_trac\_*() 系関数)}
+
+\subsection{その他の最適化解析関連関数}
+
+
+\end{document}
+
+
+%%%%%%%%%%%%%% .latex2html の内容%%%%%%%%%%%%%%%%%%%%%%%
+
+$default_language = 'japanese';
+$TITLES_LANGUAGE = 'japanese';
+$LOCAL_ICONS = 1;
+$ADDRESS = '
+<p> Copyright (C) 2001 AzLib Developers Group </p>
+<p> Written by &lt;Kenzen TAKEUCHI&gt; </p>
+<p> Thanks to following contributers. &lt;  &gt;</p>
+'; 
+

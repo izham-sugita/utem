@@ -1,0 +1,7 @@
+[Subversionドキュメント]
+* http://subversion.bluegate.org/
+
+[プロパティの設定]
+* $Id:$ の展開
+ svn propset svn:keywords Id hoge.c
+

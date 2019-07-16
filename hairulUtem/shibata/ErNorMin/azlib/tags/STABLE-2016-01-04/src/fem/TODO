@@ -1,0 +1,91 @@
+FEM TODO
+
+-------------------------------------------------------------------------------
+$Id: TODO 982 2010-09-16 07:53:45Z aoyama $
+
+
+大規模
+======
+ * B-Treeによる大規模マトリックスの取り扱い(竹内，笹岡，青山)
+   (See: [azlib-devel:00500] [大規模]マトリックスのデータ構造2)
+
+matrix_db
+=========
+ * row行目の指定範囲の一斉削除: delete_row_range_*()
+ * row行目の配列を高速追加する: add_array_matrix_db()
+
+接触
+====
+ * kd木，領域木のテスト実装，比較(笹岡)
+   (See: [azlib-devel:00476] Re: OPTISHAPE-TSにおける型抜き機能)
+
+検索系
+======
+ *あるNODEを含む全ELEMENTを返す関数
+   これはすぐできそう．ただし，高速化するためにはDB(Tree, 二次元配列など)
+   を作る必要がある．
+
+ *例えば，あるNODEの「近く」に存在するELEMENTを探すプログラム
+   主にGUI用途を想定している．
+   隣接する要素だけでなくその付近という曖昧な条件を含むため，
+   幾何的な条件とコネクティビティを考慮した高速なDBが必要
+
+fem_search_common.c
+===================
+ *2モデル間の共通○○を探すプログラム
+   Treeを使った検索などの下請けが必要
+
+ansys_component.c
+=================
+ * 管理者不在
+ * Coding Style(if, for など)が他のファイルと異なるので誰か書き直してほしい
+ * log_printfを使ったエラー文に書き直し
+ * ANSYSのファイルを本当に読めているか怪しい...
+
+flow_solver.c, sysnoise_component.c
+===================================
+ * 管理者不在
+
+eps_utl.c
+=========
+ * 複数モデルの出力
+ * 2次要素の出力 
+ * 応力，歪などのコンタ付き出力 
+
+dxf_util.c
+==========
+ * RapidFormからのDXFが読めない．(未知のエントリーがある．)
+
+
+PARAMファイル
+=============
+ * 最適化のプログラムのパラメータファイル (近年では"PARAM"という名前の
+   ファイル名で固定されている) の読み込みに関する関数を希望．
+
+    参考 : PARAMファイル
+    IT_MAX            50      /* 最大繰り返し回数 IT:iteration */
+    NR_MAX            20      /* 修正Newton法の最大繰り返し回数 */
+    MAX_STR           3.0E-1  /* 形状更新時の最大歪み STR:strain */
+    SUBJ_RATIO        1.0     /* 制約値 */
+    SUBJ_REL_ERROR    1.0E-5  /* 制約値の許容相対誤差 */
+    OBJ_REL_ERROR     1.0E-9  /* 目的汎関数の相対収束判定用 REL:relative */
+
+ * azlib0 の pokecom2.cとの関連もあり，汎用パラメータ入出力関数として
+   azlib0にあってもいい．
+ * 以下のような structを作るのではなく，1.パラメータ名("IT_MAX" 等),
+   2.型(double, int, char, 式)，3.値 を持つ配列を作り，パラメータ名で検索，
+   値の取得を行う．
+
+    /* PARAM構造体 */
+    typedef struct{
+        int it_max;
+        double max_str;
+        int nr_max;
+        double subj_ratio;
+        double subj_rel_error;
+        double obj_rel_error;
+    } PARAM;
+
+その他
+======
+ * VRML入出力

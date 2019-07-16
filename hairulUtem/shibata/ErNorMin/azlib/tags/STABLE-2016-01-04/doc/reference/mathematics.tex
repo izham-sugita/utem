@@ -1,0 +1,370 @@
+\chapter{mathematics/} \label{chap:mathematics}
+
+本章では，AzLibの数値計算を担当するmathematicsディレクトリについて説明します．
+AzLibでは有限要素法を土台として形状最適化を行うことはこれまでに説明しました．
+有限要素法では，数多くの行列・ベクトル演算を行います．
+このディレクトリでは，そこで必要となってくる数値計算関係の処理を実装しています．
+まずはじめに，実装されている処理の概要を説明します．
+それから，各関数の細かい使い方を説明します．
+
+\section{実装している機能の概要}
+
+\section{行列・ベクトルの格納}
+
+ここでは，AzLibで用いる行列およびベクトルの使い方を説明します．
+
+\subsection{基本的な行列・ベクトルの構造}
+有限要素法では，非常に規模の大きい行列（$2$ 次元配列）やベクトル（$1$ 次元配列）
+が必要になります．
+具体的な数字で言うと，大きいものであれば数百万の大きさになります．
+このような配列の大きさをプログラムの実行時に決めたいため，配列は基本的に動的確保
+します．
+動的確保については，Webで適当に調べてください．
+AzLibでは，動的確保および解放に専用の関数を使います．
+
+確保には \verb|allocate*()|，解放には \verb|free*()| を使います．
+たとえば，\verb|double| 型の $1$ 次元配列の動的確保には \verb|allocate1D()| を，
+その解放には \verb|free1D()| を使います．
+
+
+\subsection{疎行列の格納}
+有限要素法で用いられる行列の特徴の一つに，「値が $0$ である要素が非常に多い」と
+いうものがあります．
+このような行列は疎行列と呼ばれます．
+値が $0$ ならば，データとして保存しておく必要もないので，$0$ 以外の要素だけを覚
+えておくようなデータ構造にすれば，メモリを大幅に削減することができそうです．
+また，たとえば行列とベクトルの積を計算するときも，値が $0$ の要素との積はもちろ
+ん $0$ になるので，計算を省略することができます．
+メモリの節約に加えて計算時間の短縮を図ることができるため，疎行列の形式で行列を
+扱うことには大きなメリットがあります．
+
+疎行列の格納の方式にはいくつか種類があります．
+
+はじめに，行ごとに値が $0$ でない列だけを格納する方式があります．
+この方式はCRS(Compressed Row Storage)と呼ばれます．
+C言語では $2$ 次元配列のデータが行ごとに連続になるように格納されるので，そういう
+意味ではC言語向けの疎行列構造と言えるでしょう．
+行ではなく列ごとにデータを格納する方式もあり，こちらはCCS(Compressed Column 
+Storage)と呼ばれます．
+%% 図を書く．
+
+次に，スカイライン行列と呼ばれる方式があります．
+これは，行ごとに値が $0$ でない最初の要素までのデータの格納を省略する方法です．
+図で見ると，データを格納している要素が都会にならぶビルのような形をしていることが
+わかります．
+ビルと空のでこぼこした境界線がスカイラインと呼ばれることから，この格納方式の名前
+がついています．
+%% 図を書く．
+
+その他にも疎行列の格納方式はありますが，主にAzLibで用いられているのはこの $2$ 種
+類です．
+どの方式にしても一長一短なので，時と場合によって適切に使い分ける必要があります．
+
+\section{関数の説明}
+
+mathematicsディレクトリの各関数を簡単に説明します．
+詳細はソースコードを見ましょう．
+
+\subsection{complex\_utl.c}
+
+複素数の処理を行う関数群です．
+
+\begin{itemize}
+\item \verb|COMPLEX polar2right_complex(double r, double theta)| \ \\
+絶対値 \verb|r|，偏角 \verb|theta| で表される複素数を返します．
+つまり，極形式の複素数を直交座標形に変換します．
+
+\item \verb|COMPLEX add_complex(COMPLEX a, COMPLEX b)| \ \\
+複素数 \verb|a|，\verb|b| の和 \verb|a+b| を返します．
+
+\item \verb|COMPLEX sub_complex(COMPLEX a, COMPLEX b)| \ \\
+複素数 \verb|a|，\verb|b| の差 \verb|a-b| を返します．
+
+\item \verb|COMPLEX mul_complex(COMPLEX a, COMPLEX b)| \ \\
+複素数 \verb|a|，\verb|b| の積 \verb|a*b| を返します．
+
+\item \verb|COMPLEX div_complex(COMPLEX a, COMPLEX b)| \ \\
+複素数 \verb|a|，\verb|b| の商 \verb|a/b| を返します．
+
+\item \verb|COMPLEX conjugate_complex(COMPLEX a)| \ \\
+複素数 \verb|a| の共役複素数を返します．
+
+\item \verb|double abs_complex(COMPLEX a)| \ \\
+複素数 \verb|a| の絶対値を返します．
+
+\item \verb|double sq_abs_complex(COMPLEX a)| \ \\
+複素数 \verb|a| の絶対値 $2$ 乗を返します．
+
+\item \verb|RC allocate1C(int size, COMPLEX **array)| \ \\
+大きさが \verb|size| の複素数の $1$ 次元配列 \verb|array| を動的確保します．
+配列はポインタで渡します．
+
+\item \verb|RC allocate2C(int record, int column, COMPLEX ***array)| \ \\
+\verb|record| 行 \verb|column| 列の複素数の $2$ 次元配列 \verb|array| を動的確保
+します．
+配列はポインタで渡します．
+
+\item \verb|RC allocate3C(int record1, int record2, int record3, | \\
+	\verb|   COMPLEX ****array)| \ \\
+各方向の大きさが \verb|record1|，\verb|record2|，\verb|record3|の複素数の $3$ 次
+元配列 \verb|array| を動的確保します．
+配列はポインタで渡します．
+
+\item \verb|RC free1C(int size, COMPLEX **array)| \ \\
+\verb|allocate1C()|で確保した，大きさが \verb|size| の複素数の $1$ 次元配列 
+\verb|array| を解放します．
+配列はポインタで渡します．
+
+\item \verb|RC free2C(int record, int column, COMPLEX ***array)| \ \\
+\verb|allocate2C()|で確保した，\verb|record| 行 \verb|column| 列の複素数の $2$ 次
+元配列 \verb|array| を解放します．
+配列はポインタで渡します．
+
+\item \verb|RC free3C(int record1, int record2, int record3, | \\
+	\verb|   COMPLEX ****array)| \ \\
+\verb|allocate3C()|で確保した，各方向の大きさが \verb|record1|，\verb|record2|，
+\verb|record3| の複素数の $3$ 次元配列 \verb|array| を解放します．
+配列はポインタで渡します．
+
+\item \verb|RC lu_decomp_complex(COMPLEX **A, int n, int *index)| \ \\
+\verb|n| $\times$ \verb|n|の複素行列 \verb|A| をLU分解して，\verb|A| に上書きしま
+す．
+ピボット選択による行交換の情報を \verb|index| に格納するので，\verb|index| は
+\verb|allocate1I()| で大きさを \verb|n| にして動的確保してから渡します．
+
+\item \verb|RC lu_subst_complex(COMPLEX **A, int n, int *index, | \\
+	\verb|   COMPLEX *B)| \ \\
+\verb|lu_decomp_complex()| でLU分解した行列 \verb|A| と右辺ベクトル \verb|B| で
+表される連立 $1$ 次方程式を前進代入および後退代入で解き，\verb|B| をその解で上書
+きします．
+\verb|lu_decomp_complex()| で格納したピボット選択による行交換の情報を 
+\verb|index| で渡します．
+
+\item \verb|COMPLEX inner_product_scalar_complex(int n, | \\
+	\verb|   const double a[], const COMPLEX b[])| \ \\
+大きさが \verb|n| の実ベクトル \verb|a| と複素ベクトル \verb|b| の内積を返しま
+す．
+
+\item \verb|RC inner_product_scalar2_complex(int n, | \\
+	\verb|   const double a1[], const double a2[], | \\
+	\verb|   const COMPLEX b[], COMPLEX *a1b, COMPLEX *a2b)| \ \\
+大きさが \verb|n| の実ベクトル \verb|a1| および \verb|a2| と複素ベクトル 
+\verb|b| の内積を，それぞれ \verb|a1b|，\verb|a2b| で返します．
+
+\item \verb|RC inner_product_scalar1r_complex(int n, | \\
+	\verb|   const double a1[], const COMPLEX b[], int nz_begin, | \\
+	\verb|   int nz_end, COMPLEX *a1b)| \ \\
+大きさが \verb|n| の実ベクトル \verb|a1| と複素ベクトル \verb|b| の，添字が 
+\verb|nz_begin| から \verb|nz_end| までの内積を返します．
+
+\item \verb|RC inner_product_scalar2r_complex(int n, | \\
+	\verb|   const double a1[], const double a2[], | \\
+	\verb|   const COMPLEX b[], int nz_begin, int nz_end, | \\
+	\verb|   COMPLEX *a1b, COMPLEX *a2b)| \ \\
+大きさが \verb|n| の実ベクトル \verb|a1| および \verb|a2| と複素ベクトル 
+\verb|b| の，添字が \verb|nz_begin| から \verb|nz_end| までの内積を，それぞれ
+\verb|a1b|，\verb|a2b| で返します．
+
+\item \verb|RC inner_product_scalar6r_complex(int n, | \\
+	\verb|   const double a1[], const double a2[], | \\
+	\verb|   const double a3[], const double a4[], | \\
+	\verb|   const double a5[], const double a6[], | \\
+	\verb|   const COMPLEX b[], int nz_begin, int nz_end, | \\
+	\verb|   COMPLEX *a1b, COMPLEX *a2b) COMPLEX *a3b, | \\
+	\verb|   COMPLEX *a4b, COMPLEX *a5b, COMPLEX *a6b)| \ \\
+大きさが \verb|n| の実ベクトル \verb|a1|，\verb|a2|，\verb|a3|，\verb|a4|，
+\verb|a5|，\verb|a6| と複素ベクトル \verb|b| の，添字が \verb|nz_begin| から 
+\verb|nz_end| までの内積を，それぞれ \verb|a1b|，\verb|a2b|，\verb|a3b|，
+\verb|a4b|，\verb|a5b|，\verb|a6b| で返します．
+
+\item \verb|void mul_matrix33t_cvect(double matrix[][3], | \\
+	\verb|   COMPLEX v[3])| \ \\
+$3 \times 3$ の実行列 \verb|matrix| の転置と $3$ 次元複素ベクトル \verb|v| の
+積を計算し，\verb|v| に上書きします．
+
+\end{itemize}
+
+
+\subsection{geometry.c}
+
+幾何学的な処理を行う関数群です．
+
+\begin{itemize}
+\item \verb|void plane_intersect_point(const VECT3D p[], | \\
+	\verb|   VECT3D point, VECT3D *term, double *distance, | \\
+	\verb|   int *inside)| \ \\
+$3$ 点 \verb|p| を通る平面に \verb|point| から垂線を降ろしたときの交点について，
+座標（\verb|term|），距離（\verb|distance|），交点が三角形 \verb|p| 上にあるか
+（\verb|inside|）を返します．
+\verb|inside| は，三角形上にあれば $1$ を，そうでなければ $0$ を返します．
+裏向きの面に対しては，\verb|distance| は負値になります．
+
+\item \verb|int is_inside_plane(const VECT3D p[], VECT3D point)| \ \\
+三角形 \verb|p| 上に \verb|point| があるかを返します．
+三角形上にあれば $1$ を，そうでなければ $0$ を返します．
+
+\item \verb|double tri_area(VECT3D p1, VECT3D p2, VECT3D p3)| \ \\
+$3$ 点 \verb|p1|，\verb|p2|，\verb|p3| を頂点とする三角形の面積を返します．
+
+\item \verb|void line_intersect_point(VECT3D p0, VECT3D p1, | \\
+	\verb|   VECT3D point, VECT3D *term, double *distance, | \\
+	\verb|   int *inside)| \ \\
+$2$ 点 \verb|p0|，\verb|p1| を結ぶ直線に \verb|point| から垂線を降ろしたときの
+交点について，座標（\verb|term|），距離（\verb|distance|），交点が \verb|p0| と
+\verb|p1| の間にあるかを返します．
+\verb|inside| は，間にあれば $1$ を，そうでなければ $0$ を返します．
+
+\item \verb|int is_inside_line(VECT3D p0, VECT3D p1, VECT3D point)| \ \\
+$2$ 点 \verb|p0|，\verb|p1| の間に \verb|point| があるかを返します．
+間にあれば $1$ を，そうでなければ $0$ を返します．
+
+\item \verb|int is_cross_aabb(VECT3D min1, VECT3D max1, VECT3D min2, | \\
+	\verb|   VECT3D max2)| \ \\
+対角線が \verb|min1| と \verb|max1| を結んでできる線となる長方形領域と，
+\verb|min2| と \verb|max2| を結んでできる線となる長方形領域を考えたときに，
+この $2$ つの領域が重なるかを返します．
+重なっていれば $1$ を，そうでなければ $0$ を返します．
+\end{itemize}
+
+
+\subsection{lq.c}
+
+LQ分解を用いた連立 $1$ 次方程式の求解を行う関数群です．
+
+\begin{itemize}
+\item \verb|RC lq_solve(double **A, int n, const double *b, | \\
+	\verb|   double *x, int active[])| \ \\
+LQ分解を用いて，大きさが \verb|n| の連立 $1$ 次方程式 \verb|Ax = b| の解を求め，
+\verb|x| に格納します．
+
+\item \verb|RC lq_factor(int n, double **A, double **L, double **Q)| \ \\
+\verb|n| 次正方実行列 \verb|A| を下三角行列 \verb|L| と直交行列 \verb|Q| に分解
+します．
+
+\item \verb|RC lq_subst(int n, double **L, double **Q, | \\
+	\verb|   const double *b, double *x)| \ \\
+LQ分解で得られた \verb|n| 次下三角行列 \verb|L| と 直交行列 \verb|Q| から，後退
+代入で解 \verb|x| を求めます．
+
+\item \verb|RC inverse_matrix_lq(int n, double **A, | \\
+	\verb|   double **inverseA)| \ \\
+LQ分解を利用して，\verb|n| 次正方行列 \verb|A| の逆行列 \verb|inverseA| を求めま
+す．
+\end{itemize}
+
+
+\subsection{lu.c}
+
+LU分解を用いた連立 $1$ 次方程式の求解を行う関数群です．
+
+\begin{itemize}
+\item \verb|RC lu_solve(double **A, int n, const double *b, | \\
+	\verb|   double *x)| \ \\
+LU分解を用いて，大きさが \verb|n| の連立 $1$ 次方程式 \verb|Ax = b| の解を求め，
+\verb|x| に格納します．
+\verb|x| は \verb|b| と同じポインタでも構いません．
+\verb|A| は上書きされません．
+
+\item \verb|RC lu_decomp(double **A, int n, int *index, double *d)| \ \\
+\verb|n| $\times$ \verb|n|の実行列 \verb|A| をLU分解して，\verb|A| に上書きしま
+す．
+ピボット選択による行交換の情報を \verb|index| に格納するので，\verb|index| は
+\verb|allocate1I()| で大きさを \verb|n| にして動的確保してから渡します．
+\verb|d| には行交換の回数を返します．
+回数が偶数であれば $1.0$ を，奇数であれば $-1.0$ を返します．
+
+\item \verb|RC lu_subst(double **A, int n, int *index, | \\
+	\verb|   double *B)| \ \\
+\verb|lu_decomp()| でLU分解した行列 \verb|A| と右辺ベクトル \verb|B| で
+表される連立 $1$ 次方程式を前進代入および後退代入で解き，\verb|B| をその解で上書
+きします．
+\verb|lu_decomp()| で格納したピボット選択による行交換の情報を \verb|index| で渡
+します．
+\end{itemize}
+
+
+\subsection{math\_utl.c/h}
+
+数値計算全般に関わるような処理を行う関数群です．
+
+はじめに，ヘッダファイルで定義されているマクロを説明します．
+
+\begin{itemize}
+\item \verb|PI| \ \\
+円周率の近似値を表します．
+
+\item \verb|ABS_TOL| \ \\
+絶対許容誤差を表します．
+具体的な値は，\verb|double| 型の最小値 \verb|DBL_MIN| を，\verb|double| 型で表現
+可能な $1$ より大きい最小の値と $1$ との差 \verb|DBL_EPSILON| で割ったものです．
+
+\item \verb|REL_TOL| \ \\
+相対許容誤差を表します．
+具体的な値は，\verb|double| 型で表現可能な $1$ より大きい最小の値と $1$ との差 
+\verb|DBL_EPSILON| に $1000$ をかけたものです．
+
+\item \verb|ABS_ERROR| \ \\
+\verb|ABS_TOL| と同じです．
+互換性のために残っています．
+
+\item \verb|REL_ERROR| \ \\
+\verb|REL_TOL| と同じです．
+互換性のために残っています．
+
+\item \verb|EXP_LIMIT| \ \\
+$x$ を \verb|double| 型変数で表現したときの $e^x$ の最大値を返します．
+
+\item \verb|SIGN(a)| \ \\
+\verb|a| の符号を返します．
+
+\item \verb|ISIGN(a)| \ \\
+\verb|a| が $0$ 以上の値かどうかを返します．
+真なら $0$，偽なら $1$ を返します．
+
+\item \verb|MAX2(a, b)| \ \\
+\verb|a| と \verb|b| のうち，値が大きいほうを返します．
+
+\item \verb|MIN2(a, b)| \ \\
+\verb|a| と \verb|b| のうち，値が小さいほうを返します．
+
+\item \verb|MIN_MAX(min, a, max)| \ \\
+\verb|min| が \verb|max| よりも小さければ，$3$ つの値 \verb|min|，\verb|a|，
+\verb|max| のうちの中間の値を返します．
+そうでなければ，\verb|max| を返します．
+
+\item \verb|KEEP_AWAY_ZERO(a)| \ \\
+実数値 \verb|v| を $0$ から絶対許容誤差 \verb|ABS_TOL| 分だけ離します．
+$0$ 割りを回避する際に用います．
+
+\item \verb|SWAP(a, b, swp)| \ \\
+\verb|a| と \verb|b| の値を入れ替えます．
+
+\item \verb|ERROR_SUM(sum, x, r, tmp)| \ \\
+値の桁落ちを回避するように，\verb|sum| に \verb|x| をたします．
+
+\end{itemize}
+
+次に，ヘッダファイルで定義されている構造体を説明します．
+
+\begin{itemize}
+\item \verb|VECT3D { double x; double y; double z; }| \ \\
+$3$ 次元ベクトルを表します．
+
+\item \verb|VECT3D { double x; double y; double z; double xy; | \\
+	\verb|   double yz; double zx; }| \ \\
+各軸回りの回転量も含めた $3$ 次元ベクトルを表します．
+
+\item \verb|COMPLEX { double re; double im; }| \ \\
+実部と虚部がそれぞれ \verb|re|，\verb|im| で表される複素数を表します．
+
+\end{itemize}
+
+ここからは，関数を説明します．
+
+\begin{itemize}
+\item \verb|double keep_away_zero(double v)| \ \\
+実数値 \verb|v| を $0$ から絶対許容誤差 \verb|ABS_TOL| 分だけ離します．
+$0$ 割りを回避する際に用います．
+\end{itemize}
+
+%% EOF

@@ -1,0 +1,126 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% main.tex
+%
+% $Id: main.tex 1036 2016-02-02 05:28:24Z hayashi $
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[a4paper, 10pt]{jbook} % 通常の文書
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Packages
+%\usepackage{amsfonts}
+\usepackage[cmex10]{amsmath}
+\usepackage{bm}
+\usepackage{booktabs}
+%\usepackage{enumitem}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{listings}
+%\usepackage{longtable}
+%\usepackage{multirow}
+
+%% Path to eps files(use with package graphicx)
+\graphicspath{{./psfiles/}}
+
+%% Option of lstset(listings)
+%\lstset{
+%	language = c,
+%	numbers = left,
+%	stepnumber = 1,
+%	numberstyle = \itshape,
+%	numbersep = 10pt,
+%	breaklines = true,
+%	breakindent = 20pt,
+%	frame = single,
+%	framesep = 3pt,
+%	basicstyle = \ttfamily,
+%	commentstyle = \ttfamily,
+%	keywordstyle = \ttfamily,
+%}
+
+%% make a booklet of pdf
+\usepackage[
+	dvipdfmx,
+	bookmarks=true,
+	bookmarksnumbered=true,
+	bookmarkstype=toc,
+	colorlinks=true,
+	linkcolor=black,
+	citecolor=black,
+	filecolor=black,
+	setpagesize=false,
+%	pagecolor=black,
+	urlcolor=black
+]{hyperref}
+
+%% translate the letter code of booklet from EUC to Unicode
+\ifnum 42146=\euc"A4A2 \AtBeginDvi{\special{pdf:tounicode EUC-UCS2}}\else
+\AtBeginDvi{\special{pdf:tounicode 90ms-RKSJ-UCS2}}\fi
+%% add section number to equation number
+%\makeatletter
+%    \renewcommand{\theequation}{
+%	    \thesection.\arabic{equation}
+%	}
+%    \@addtoreset{equation}{section}
+%\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% TITLE, AUTHOR, DATE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Title
+\title{
+	AzLib の手引き書
+}
+
+%% Author
+\author{
+	hayashi＠azlab
+}
+
+%% Date
+\date{
+	最終更新日：\today
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% BODY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\maketitle
+
+%\begin{abstract}
+%本書は，名古屋大学畔上研究室内の開発環境であるAzLib（アズリブ）の手引き書です．
+%AzLibを利用する人の手助けをすることを目的として書かれています．
+%第\ref{sec:abstract}章で概要を説明し，第\ref{sec:base}章以降で詳細を説明します．
+%細かい部分はソースコードを読むのが一番だと思うので，本書ではソースコードを
+%書くことは極力しません．
+%\end{abstract}
+
+\tableofcontents
+%\listoffigures
+%\listoftables
+\newpage
+
+\input{abstract.tex}
+\newpage
+\input{base.tex}
+\newpage
+\input{mathematics.tex}
+\newpage
+\input{fem.tex}
+\newpage
+\input{image.tex}
+\newpage
+\input{gui.tex}
+
+\end{document}
+
+
+%% EOF

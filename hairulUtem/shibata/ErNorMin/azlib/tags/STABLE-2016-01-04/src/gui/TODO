@@ -1,0 +1,50 @@
+GUI TODO
+
+-------------------------------------------------------------------------------
+$Id: TODO 842 2006-12-04 06:21:20Z sasaoka $
+
+
+BUG
+===
+ * Ctrl-q で終了しない．フォーカスが別のところに取られてる．
+   もしくは，アクセラレータを登録したwidget があやしい． 
+ * nodeのみのモデルの節点番号が表示されなくなってる． 
+ * RENDER_MODEがSEELECTのときフォントがレンダリングされない 
+
+
+GL,GTK
+======
+ * 節点の取得 
+ * セレクションでnode. elem.surfの選択をすべき 
+ * 範囲指定のとき選択領域に全域が入った要素をピックするか? 
+ * 画面のポイント，カーソルを int, doubleどっちで管理するか?をはっきりさせる．
+   どちらかと言えばGDKよりにgint GDKPointの方向 で 
+ * 背景(glDepthFunc(ALWAYS)最初に描画すればできそう．マトリックス乗算なし) 
+ * 座標が最前面に来るようにする 
+ * OpenGLのエラーチェック(GLGetError()) 
+ * GL_POLYGONをTRI1, QUAD1に限り GL_TRIANGLES, GL_QUADSに変更(高速化) 
+
+
+Inter Face
+==========
+ * Operation Matrixの保存と読み込み
+ * 進む戻るボタン．ope-matrixをリングバッファで記録する． 
+ * カーソルの変更 
+ * アイコン画像をITEM_STOCKに 
+ * ファイルの削除(gtku_remove_object)，応力などを追加する(gtku_add_object_attr) 
+
+FEM
+===
+ * 応力のカラー表示 
+ * 二次要素の面表現をNUBASでは無理なので，内挿関数を使って実装する 
+
+
+ボツ アイディア
+==============
+ * gtkgl_utl.c Ver. 1.13よりGtkGLExtの内部バッファに描画するのを止める．
+   GdkPixmap?をGdkGLDrawable capability(能力)をあたえる．描画関係をOpenGL
+   メインからGDKメインに切り替わる．カラーコンタ，背景などが期待される． 
+
+   ==> 実際にやって見たところ，非常に遅く，Single-Buffer Mode に近い
+       スピードしかでない．一種のフリッカーが発生する．
+

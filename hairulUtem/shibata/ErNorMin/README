@@ -1,0 +1,27 @@
+----- 変位誤差ノルム最小化問題による非線形ひずみ解析 -----
+-----       医用データに基づく患者モデルを使用       -----
+
+変位誤差ノルム最小化問題を用いて非線形ひずみを求める解析プログラム．
+※事前に，パラメトリック形状適合問題で患者形状を作る必要が有る
+
+[用意するファイル]（全てInput_dataに入れておく）
+PARAM : 各種パラメータファイル（詳しくはPARAMファイルを参照）
+model.bdf : 正常モデルのbdfファイル（材料定数一定）
+spine-20101215.bdf : 正常モデルのbdfファイル（材料定数が一定でない）
+model_bone.bdf : サイズ調整した正常モデル
+target_model.bdf : ターゲットとなるモデル（パラメトリック形状適合問題の解）
+
+[出力ファイル]（Output_dataに出力される）
+reference_points.bdf : 患者モデルの参照境界のbdfファイル
+opt_disp.inp : 最適密度分布における変位
+opt_strain.inp : 最適密度分布におけるひずみ分布
+opt_density.inp : 最適密度分布（phiの値）
+opt_theta.inp : 最適密度分布（thetaの値）
+ini_disp.inp : 初期密度分布における変位
+ini_strain.inp : 初期密度分布におけるひずみ分布
+iteration_history.dat : 収束履歴
+iteration_history.d : 収束履歴（metapostによるグラフ作成のためのファイル）
+sens_trac.inp : 密度勾配分布
+step_sens_density : ステップごとの密度分布（phiの値）
+
+

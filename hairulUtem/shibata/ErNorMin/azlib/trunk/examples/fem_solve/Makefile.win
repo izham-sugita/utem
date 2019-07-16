@@ -1,0 +1,68 @@
+## VC++ ##
+CC      = cl.exe /nologo
+LIBS    =
+CFLAGS  =  /O2 /W3 /wd4819 /DWIN32 /D_CRT_SECURE_NO_DEPRECATE
+MAKE    = nmake -f Makefile.win /nologo "CC=$(CC)" "CFLAGS=$(CFLAGS)"
+RM      = del.exe
+
+
+## for Intel C compiler on Win32 ##
+#CC      = icl.exe /nologo
+#CFLAGS  = /O3 /W3 /DWIN32 /wd4819 /MT /D_CRT_SECURE_NO_DEPRECATE
+#MAKE    = nmake -f Makefile.win /nologo "CC=$(CC)" "CFLAGS=$(CFLAGS)"
+#RM      = del.exe
+
+
+## AzLib ##
+AZLIB  = ..\..\src
+BASE   = $(AZLIB)\base
+FEM    = $(AZLIB)\fem
+GUI    = $(AZLIB)\gui
+IMAGE  = $(AZLIB)\image
+MATH   = $(AZLIB)\mathematics
+
+HOME    = ..\..\examples\fem_solve
+
+TARGET0 = fem_solve.exe
+OBJM0   = fem_solve.obj \
+          file_io.obj
+LIBAZ0  = $(FEM)\fem.lib \
+          $(MATH)\mathematics.lib \
+          $(BASE)\base.lib
+
+ALL = $(TARGET0)
+all : $(ALL)
+
+base_obj :
+	cd $(BASE)
+	$(MAKE) all
+	cd $(HOME)
+
+math_obj :
+	cd $(MATH)
+	$(MAKE) all
+	cd $(HOME)
+
+fem_obj :
+	cd $(FEM)
+	$(MAKE) all
+	cd $(HOME)
+
+$(TARGET0) : $(OBJM0) fem_obj math_obj base_obj 
+	$(CC) -o $@ $(OBJM0) $(LIBAZ0) $(LIBS)
+
+.c.obj :
+	$(CC) $(CFLAGS) -I$(BASE) -I$(MATH) -I$(FEM) -c $<
+
+clean :
+	cd $(BASE)
+	$(MAKE) clean
+	cd $(HOME)
+	cd $(MATH)
+	$(MAKE) clean
+	cd $(HOME)
+	cd $(FEM)
+	$(MAKE) clean
+	cd $(HOME)
+	$(RM) $(ALL) *.obj *.o *~ *.bak *.pbi *.pbo *.pbt *._xe *.map
+

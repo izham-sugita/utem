@@ -1,0 +1,32 @@
+\chapter{gui/} \label{chap:gui}
+
+本章では，AzLibの有限要素モデルをGUIで表示する処理を実装しているguiディレクトリ
+について説明します．
+
+
+\section{準備}
+
+AzLibのGUIでは，OpenGLを用いています．
+OpenGLの基礎については，Webの情報を参照してください．
+
+使用するにあたってインストールしておくパッケージがあります．
+Linuxでは，
+\begin{itemize}
+\item freeglut,
+\item freeglut-devel
+\end{itemize}
+になります．
+
+
+\section{モデルの表示}
+
+モデルを表示するには，\verb|show_fem_model()| 関数を用います．
+ウィンドウが開いて，引数で渡した要素と節点を持つモデルを表示します．
+このとき，\verb|extract_surface()| 関数を用いて抽出した表面要素を渡します．
+$2$ 次要素には現在対応していないので，\verb|reduced_element_array_order()| を用い
+て $1$ 次要素に変換してから使います．
+また，$2$ 次元要素にも現在対応していません．
+
+\section{関数の説明}
+
+

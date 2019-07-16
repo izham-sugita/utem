@@ -1,0 +1,78 @@
+#####################################################################
+# Makefile.win(fem)
+#
+# Copyright (C) 2005 AzLib Developers Group
+#
+# Written by
+#  <Kenzen TAKEUCHI>
+#
+# Thanks to following contributors.
+#  <Ryu SASAOKA>
+#
+# Refer to log documents for details.
+#####################################################################
+
+# $Id: Makefile.win 659 2005-12-12 07:57:11Z sasaoka $
+
+## VC++ on Win32 ##
+CC      = cl.exe /nologo
+CFLAGS  = /O2 /G6 /W3 /ML /DWIN32
+LINK    = link.exe
+LNFLAGS = -lib /out:
+INC     = /I..\base /I..\mathematics
+
+
+## Intel C compiler on Win32 ##
+#CC      = icl.exe /nologo
+#CFLAGS  = /O3 /G7 /W3 /ML /DWIN32
+#LINK    = link.exe
+#LNFLAGS = -lib /out:
+#INC     = /I..\base /I..\mathematics
+
+ALL_OBJ = \
+  ansys_component.obj \
+  avs_utl.obj \
+  contact.obj \
+  dxf_utl.obj \
+  eigen_solver.obj \
+  element_volume.obj \
+  eps_utl.obj \
+  extract_surface.obj \
+  face_edge_table.obj \
+  fem_geometry.obj \
+  fem_renumber.obj \
+  fem_search_common.obj \
+  fem_solver.obj \
+  fem_solver_6dof.obj \
+  fem_struct.obj \
+  fem_struct_binio.obj \
+  fem_struct_print.obj \
+  fem_utl.obj \
+  flow_solver.obj \
+  integration.obj \
+  interpolation.obj \
+  matrix_db.obj \
+  matrix_db_amls.obj \
+  nl_solver.obj \
+  nst_blk_component.obj \
+  nst_blk_llio.obj \
+  nst_f06_component.obj \
+  nst_pch_component.obj \
+  optimization_utl.obj \
+  pressure_force.obj \
+  sky_cholesky.obj \
+  sky_crout.obj \
+  stl_utl.obj \
+  sysnoise_component.obj
+
+all : $(ALL_OBJ) fem.lib
+
+fem.lib : $(ALL_OBJ)
+	$(LINK) $(LNFLAGS)$@ $? 
+
+.c.obj :
+	$(CC) $(CFLAGS) $(INC) -c $<
+
+clean :
+	del *.obj *.o *.lib *.a *~ *.bak
+

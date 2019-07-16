@@ -1,0 +1,6 @@
+カラーターミナルでの色出力
+
+初出: [azlib-devel:00389] 
+
+example/color
+

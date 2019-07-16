@@ -1,0 +1,51 @@
+#####################################################################
+# Makefile.win(azlib0)
+#
+# Copyright (C) 2001 AzLib Developers Group
+#
+# Written by
+#  <Kenzen TAKEUCHI>
+#
+# Thanks to following contributors.
+#  <Ryu SASAOKA>
+#
+# Refer to log documents for details.
+#####################################################################
+
+# $Id: Makefile.win,v 1.1 2004/02/05 10:28:57 sasaoka Exp $
+
+## VC++ on Win32 ##
+CC      = cl.exe /nologo
+CFLAGS  = /O2 /G6 /W3 /ML /DWIN32
+LINK    = link.exe
+LNFLAGS = -lib /out:
+INC     =
+
+## Intel C compiler on Win32 ##
+#CC      = icl.exe /nologo
+#CFLAGS  = /O3 /G7 /W3 /ML /DWIN32
+#LINK    = link.exe
+#LNFLAGS = -lib /out:
+#INC     =
+
+ALL_OBJ = \
+  bin_io.obj \
+  idc.obj \
+  integration.obj \
+  mail_utl.obj \
+  math_utl.obj \
+  pokecom.obj \
+  rc.obj \
+  string_utl.obj
+
+all : $(ALL_OBJ) azlib0.lib
+
+azlib0.lib : $(ALL_OBJ)
+   $(LINK) $(LNFLAGS)$@ $?
+
+.c.obj :
+	$(CC) $(CFLAGS) $(INC) -c $<
+
+clean :
+	del *.obj *.o *.lib *.a *~ *.bak
+

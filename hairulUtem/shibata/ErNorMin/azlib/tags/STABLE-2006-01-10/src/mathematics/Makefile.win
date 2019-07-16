@@ -1,0 +1,54 @@
+#####################################################################
+# Makefile.win(mathematics)
+#
+# Copyright (C) 2005 AzLib Developers Group
+#
+# Written by
+#  <Ryu SASAOKA>
+#
+# Thanks to following contributors.
+#  <Kenzen TAKEUCHI>
+#
+# Refer to log documents for details.
+#####################################################################
+
+# $Id: Makefile.win 659 2005-12-12 07:57:11Z sasaoka $
+
+## VC++ on Win32 ##
+CC      = cl.exe /nologo
+CFLAGS  = /O2 /G6 /W3 /ML /DWIN32
+LINK    = link.exe
+LNFLAGS = -lib /out:
+INC     = /I..\base /I..\mathematics
+
+## Intel C compiler on Win32 ##
+#CC      = icl.exe /nologo
+#CFLAGS  = /O3 /G7 /W3 /ML /DWIN32
+#LINK    = link.exe
+#LNFLAGS = -lib /out:
+#INC     = /I..\base /I..\mathematics
+
+ALL_OBJ = \
+  geometry.obj \
+  lq.obj \
+  lu.obj \
+  math_utl.obj \
+  matrix.obj \
+  operation.obj \
+  pokecom2.obj \
+  qr.obj \
+  random.obj \
+  vect3d.obj \
+  vect_storage.obj
+
+all : $(ALL_OBJ) mathematics.lib
+
+mathematics.lib : $(ALL_OBJ)
+	$(LINK) $(LNFLAGS)$@ $?
+
+.c.obj :
+	$(CC) $(CFLAGS) $(INC) -c $<
+
+clean :
+	del *.obj *.o *.lib *.a *~ *.bak
+

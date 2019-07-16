@@ -1,0 +1,62 @@
+#####################################################################
+# Makefile.win(gui)
+#
+# Copyright (C) 2002 AzLib Developers Group
+#
+# Written by
+#  <Kenzen TAKEUCHI> <Ryu SASAOKA>
+#
+# Thanks to following contributors.
+# 
+#
+# Refer to log documents for details.
+#####################################################################
+
+# $Id: Makefile.win 420 2005-08-12 07:02:40Z sasaoka $
+
+## VC++ on Win32 ##
+CC      = cl.exe /nologo
+CFLAGS  = /O2 /G6 /W3 /ML /DWIN32
+LINK    = link.exe
+LNFLAGS = -lib /out:
+INC     = /I..\base /I..\mathematics /I..\fem /I..\image
+
+## Intel C compiler on Win32 ##
+#CC      = icl.exe /nologo
+#CFLAGS  = /O3 /G7 /W3 /ML /DWIN32
+#LINK    = link.exe
+#LNFLAGS = -lib /out:
+#INC     = /I..\base /I..\mathematics /I..\fem /I..\image
+
+## gtk+-2.0 & gtkglext-1.0 ##
+# GTK_CFLAGS : result of `pkg-config.exe --cflags gtk+-2.0 gtkglext-1.0`
+GTK_CFLAGS = \
+ -IC:/Dev-C++/lib/gtk-2.0/include \
+ -IC:/Dev-C++/lib/glib-2.0/include \
+ -IC:/Dev-C++/include/gtk-2.0 \
+ -IC:/Dev-C++/include/glib-2.0 \
+ -IC:/Dev-C++/include/atk-1.0 \
+ -IC:/Dev-C++/include/pango-1.0 \
+ -IC:/GtkGLExt/1.0/include/gtkglext-1.0 \
+ -IC:/GtkGLExt/1.0/lib/gtkglext-1.0/include
+
+ALL_OBJ =  \
+  gtk_model_view.obj \
+  gtk_utl.obj \
+  gtkgl_article.obj \
+  gtkgl_fem.obj \
+  gtkgl_image.obj \
+  gtkgl_utl.obj
+
+
+all : $(ALL_OBJ) gui.lib
+
+gui.lib : $(ALL_OBJ)
+	$(LINK) $(LNFLAGS)$@ $?
+
+.c.obj :
+	$(CC) $(CFLAGS) $(INC) $(GTK_CFLAGS) -c $<
+
+clean :
+	del *.obj *.o *.lib *.a *~ *.bak
+

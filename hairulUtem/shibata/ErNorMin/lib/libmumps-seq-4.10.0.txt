@@ -1,0 +1,15 @@
+/.
+/usr
+/usr/lib
+/usr/lib/libdmumps_seq-4.10.0.so
+/usr/lib/libmumps_common_seq-4.10.0.so
+/usr/lib/libcmumps_seq-4.10.0.so
+/usr/lib/libzmumps_seq-4.10.0.so
+/usr/lib/libmpiseq_seq-4.10.0.so
+/usr/lib/libsmumps_seq-4.10.0.so
+/usr/lib/libpord_seq-4.10.0.so
+/usr/share
+/usr/share/doc
+/usr/share/doc/libmumps-seq-4.10.0
+/usr/share/doc/libmumps-seq-4.10.0/copyright
+/usr/share/doc/libmumps-seq-4.10.0/changelog.Debian.gz

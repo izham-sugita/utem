@@ -1,0 +1,36 @@
+Base TODO
+
+-------------------------------------------------------------------------------
+$Id: TODO 842 2006-12-04 06:21:20Z sasaoka $
+
+
+file_utl.c
+==========
+ * I/O[fopen,fclose(ANSI C), open,read,write(POSIX)]の上位関数を作る
+
+   | fflushが効かない問題(See : [azlib-devel:00481])は OS側でファイルの
+   | 入出力に関してバッファリングしていることが問題なのではないかと推測．
+   | なので，これを強制的に書き込むように各OSの System Callを使った上位
+   | 関数を作り，対応する．
+
+ * fileのlock(flockはWindowsでは効かない)
+ * ファイル名，拡張子の取得
+
+data_model.c
+============
+ * ILP出力 
+
+idc.c
+=====
+ * scanf系関数を使って置き換え
+
+log_printf.c
+============
+ * Progress Bar の出力で ??% をメータの外に出すようにする．
+ * ファイルストリームを渡すprint系関数などに "FILE *lp" を渡すと
+   log_printfにバイパスするようにできないか?
+
+memory_manager.c
+================
+ * 現在の使用状況が見て分かるような(DEBUG用?)の出力
+

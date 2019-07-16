@@ -1,0 +1,14 @@
+/.
+/usr
+/usr/lib
+/usr/lib/libcmumps-4.10.0.so
+/usr/lib/libpord-4.10.0.so
+/usr/lib/libzmumps-4.10.0.so
+/usr/lib/libmumps_common-4.10.0.so
+/usr/lib/libdmumps-4.10.0.so
+/usr/lib/libsmumps-4.10.0.so
+/usr/share
+/usr/share/doc
+/usr/share/doc/libmumps-4.10.0
+/usr/share/doc/libmumps-4.10.0/copyright
+/usr/share/doc/libmumps-4.10.0/changelog.Debian.gz

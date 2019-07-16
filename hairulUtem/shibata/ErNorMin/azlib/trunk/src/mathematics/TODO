@@ -1,0 +1,11 @@
+# Mathematics TODO
+
+-------------------------------------------------------------------------------
+$Id: TODO 1094 2016-12-05 07:00:41Z hayashi $
+
+* nonzero_cg.c/h
+- NONZERO_MATRIX -> CRS_DMATRIX
+
+* math_utl.c
+- int or doubleの配列をもらって，最小，最大，平均，分散を求める関数と構造体
+

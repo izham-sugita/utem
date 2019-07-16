@@ -1,0 +1,18 @@
+Solution to the problem of MUMPS
+use ubuntu version. pre-compiled binary is ok. Just don't use the parallel version. Still cannot
+figure out why its not working; eventhough I managed to build my own.
+
+By using the serial version and dynamic linking, problem solved!
+
+-ldmumps_seq -lmumps_common_seq -lpord_seq 
+
+No need for 
+-lmpiseq_seq-4.10.0
+
+All libdmumps_seq, libmumps_common_seq, libpord_seq are runned on multi-threads.
+To control threads number, limit GOTO_NUM_THREADS thread counts of the environment.
+
+$export GOTO_NUM_THREADS=what-number-you-want-to-limit
+
+At first, I thought the libblas library and OpenMP threads were controlling the thread 
+counts, but that is not the case.

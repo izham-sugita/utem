@@ -1,0 +1,52 @@
+#####################################################################
+# Makefile.win(azlibGL)
+#
+# Copyright (C) 2002 AzLib Developers Group
+#
+# Written by
+#  <Kenzen TAKEUCHI> <Ryu SASAOKA>
+#
+# Thanks to following contributors.
+# 
+#
+# Refer to log documents for details.
+#####################################################################
+
+# $Id: Makefile.win,v 1.1 2004/02/05 10:28:57 sasaoka Exp $
+
+## VC++ on Win32 ##
+CC      = cl.exe /nologo
+CFLAGS  = /O2 /G6 /W3 /ML /DWIN32
+LINK    = link.exe
+LNFLAGS = -lib /out:
+INC     = /I..\azlib0 \I..\azlibFEM \I..\azlibPIX
+
+## Intel C compiler on Win32 ##
+#CC      = icl.exe /nologo
+#CFLAGS  = /O3 /G7 /W3 /ML /DWIN32
+#LINK    = link.exe
+#LNFLAGS = -lib /out:
+#INC     = /I..\azlib0
+
+## gtk+-2.0 & gtkglext-1.0 ##
+GTK_CFLAGS = `/usr/bin/pkg-config --cflags gtk+-2.0 gtkglext-1.0`
+
+
+ALL_OBJ =  \
+  glut_utl.obj \
+  gtkgl_utl.obj \
+  gtk_graph.obj \
+  gtk_model_view.obj \
+  gtk_utl.obj 
+
+all : $(ALL_OBJ) azlibGL.lib
+
+azlibGL.lib : $(ALL_OBJ)
+	$(LINK) $(LNFLAGS)$@ $?
+
+.c.obj :
+	$(CC) $(CFLAGS) $(INC) $(GTK_CFLAGS) -c $<
+
+clean :
+	del *.obj *.o *.lib *.a *~ *.bak
+

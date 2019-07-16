@@ -1,0 +1,40 @@
+MEMO
+====
+
+ $Id: MEMO 842 2006-12-04 06:21:20Z sasaoka $
+
+TIPS
+====
+ * OpenGLはスレッドセーフらしい
+
+ * motion_notify_eventは button_press_eventよりも先に来る．マウスを押した時，
+   予想外の動きをした時は注意．(2004/01/21) 
+
+ * gtkglextの GdkGLContext *share_listというのは，複数の描画エリアがある時
+   にmainエリアのGdkGLContextをコピーするために使う．main描画エリアのときは
+    share_lisはNULLを指定する．(2004/01/21) 
+
+ * 直前に描いたGL画面の再描画は glCopyPixels()で可能．ただし， GDKで描いたも
+   のは再描画されない．さらに，以下ような記述をした場合，gldrawableには直前の
+   描画(=OpenGLの直前のバッファ)が残っており，そこに一回は方形を描くことがで
+   きるが，単型領域を広げると残像が残る．背景をgdk_draw_rectangle で消そうと
+   して無駄である，今度はOpenGL側のフレームバッファが表示されなくなる．
+   (2004/01/22) 
+   --------------------------------------------------------------------
+   glCopyPixels(0, 0, event->area.width, event->area.height, GL_COLOR);
+   gdk_draw_rectangle( GDK_DRAWABLE(gldrawable),
+                       widget->style->mid_gc[GTK_WIDGET_STATE(widget)],
+                       FALSE, 100, 100, 30, 30);
+   --------------------------------------------------------------------
+
+
+BUG解決
+=======
+ * メモリーリークしてる．おそらくボタンや項目選択時に生成したWidgetに対する
+   ポインタのunrefをしてないことが原因．全項目を選択した後はリークしていない
+   ので，微妙
+   ==> メモリーリークではない．ボタンWidgetなどは押されるまでそのメモリは
+       確保しない．同じくGL描画エリアでも数回のアクションまでは mallocをし
+       ているがその後メモリーは増えなくなる．
+
+

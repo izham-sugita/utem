@@ -1,0 +1,56 @@
+#####################################################################
+# Makefile.win(base)
+#
+# Copyright (C) 2001 AzLib Developers Group
+#
+# Written by
+#  <Kenzen TAKEUCHI>
+#
+# Thanks to following contributors.
+#  <Ryu SASAOKA>
+#
+# Refer to log documents for details.
+#####################################################################
+
+# $Id: Makefile.win 873 2007-02-05 10:11:13Z sasaoka $
+
+## VC++ on Win32 ##
+CC      = cl.exe /nologo
+CFLAGS  = /O2 /W3 /wd4819 /DWIN32 /D_CRT_SECURE_NO_DEPRECATE
+LINK    = link.exe
+LNFLAGS = -lib /out:
+INC     =
+
+## Intel C compiler on Win32 ##
+#CC      = icl.exe /nologo
+#CFLAGS  = /O3 /G7 /W3 /ML /DWIN32
+#LINK    = link.exe
+#LNFLAGS = -lib /out:
+#INC     =
+
+ALL_OBJ = \
+  bin_io.obj \
+  data_model.obj \
+  idc.obj \
+  list.obj \
+  log_printf.obj \
+  mail_utl.obj \
+  memory_manager.obj \
+  rc.obj \
+  scratch_io.obj \
+  string_utl.obj \
+  time_utl.obj \
+  wrapper_64.obj
+
+all : $(ALL_OBJ) base.lib
+
+base.lib : $(ALL_OBJ)
+	$(LINK) $(LNFLAGS)$@ $(ALL_OBJ)
+
+.c.obj :
+	$(CC) $(CFLAGS) $(INC) -c $<
+
+clean :
+	del *.obj *.o *.lib *.a *~ *.bak
+
+

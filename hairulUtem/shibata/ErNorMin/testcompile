@@ -1,0 +1,2 @@
+gcc -I ./lib/mumps/libseq -I ./lib/mumps/include -I ./lib/mumps/src c_example.c ./lib/mumps/libseq/libmpiseq.a \
+./lib/mumps/lib/libdmumps.a  ./lib/mumps/lib/libmumps_common.a  ./lib/mumps/lib/libpord.a
