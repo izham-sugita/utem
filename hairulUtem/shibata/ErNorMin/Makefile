@@ -11,7 +11,8 @@ CC     = gcc -pg
 
 #dynamic link
 #LIBS    = -lm -ldmumps-4.10.0 -lmumps_common-4.10.0 -lmpiseq_seq-4.10.0 -lpord-4.10.0 -lgfortranbegin -lgfortran
-LIBS    = -lm -ldmumps_seq -lmumps_common_seq -lpord_seq -lgfortranbegin -lgfortran -lpthread
+#LIBS    = -lm -ldmumps_seq -lmumps_common_seq -lpord_seq -lgfortranbegin -lgfortran -lpthread
+LIBS    = -lm -ldmumps_seq -lmumps_common_seq -lpord_seq -lgfortran -lpthread
 CFLAGS  = -O -Wall -fno-builtin -fopenmp
 
 ## icc ##
@@ -67,12 +68,12 @@ OBJM0   = $(TARGET0).o \
 
 LIBAZ0 = $(FEM)/fem.a \
 $(BASE)/base.a \
-$(MATH)/mathematics.a \
+$(MATH)/mathematics.a 
 #$(MUMPSLIB)/libdmumps.a \
 #$(MUMPSLIB)/libmumps_common.a \
 #$(LIBSEQ)/libmpiseq.a \
 #$(PORDLIB)/libpord.a
-	
+
 
 ALL =   $(TARGET0)
 
